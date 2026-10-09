@@ -29,6 +29,7 @@ type ShoppingPageProps = {
   >;
   setEditShoppingItemId: React.Dispatch<React.SetStateAction<string>>;
   openShoppingReceipt: (item: ShoppingItem) => void;
+  openItemDetail: (itemId: string) => void;
   load: () => Promise<void>;
   setMobileAction: React.Dispatch<
     React.SetStateAction<
@@ -63,6 +64,7 @@ export function ShoppingPage({
   setEditShoppingItem,
   setEditShoppingItemId,
   openShoppingReceipt,
+  openItemDetail,
   load,
   setMobileAction,
   shoppingChannels,
@@ -131,7 +133,17 @@ export function ShoppingPage({
                           />
                         </span>
                         <span>
-                          <strong>{item.name}</strong>
+                          {item.itemId ? (
+                            <button
+                              type="button"
+                              className="item-link"
+                              onClick={() => openItemDetail(item.itemId!)}
+                            >
+                              {item.name}
+                            </button>
+                          ) : (
+                            <strong>{item.name}</strong>
+                          )}
                           <small>
                             {[
                               item.category
