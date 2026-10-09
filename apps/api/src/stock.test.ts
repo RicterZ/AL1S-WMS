@@ -305,3 +305,31 @@ test("pausing replenishment preserves stock and manual purchase plans",async()=>
     assert.equal((await app.inject({method:"GET",url:`${base}/overview`,headers})).json().needsReplenishment.total,1);
   } finally {await app.close();db.close();}
 });
+
+test("automatic purchases estimate from the latest priced receipt and preserve estimates on receiving", async () => {
+  const {db,homeId,itemId,locationId}=fixture();
+  db.prepare("UPDATE items SET reorder_point=10 WHERE id=?").run(itemId);
+  const userId=randomUUID(),sessionId=randomUUID();
+  db.prepare("INSERT INTO users(id,username,password_hash,created_at) VALUES (?,?,?,?)").run(userId,"price-user","unused",new Date().toISOString());
+  db.prepare("INSERT INTO sessions(id,user_id,expires_at) VALUES (?,?,?)").run(sessionId,userId,"2099-01-01T00:00:00.000Z");
+  const app=await buildApp(db);
+  const suggestions=async()=> (await app.inject({method:"GET",url:`/api/v1/homes/${homeId}/shopping-list`,headers:{cookie:`session=${sessionId}`}})).json();
+  try {
+    assert.equal((await suggestions())[0].estimatedTotal,null);
+    recordStock(db,homeId,"receipt",{itemId,locationId,quantity:2,totalPrice:5,purchaseDate:"2026-01-01",idempotencyKey:"older-price"});
+    recordStock(db,homeId,"receipt",{itemId,locationId,quantity:3,totalPrice:10,purchaseDate:"2026-02-01",idempotencyKey:"latest-price"});
+    recordStock(db,homeId,"receipt",{itemId,locationId,quantity:1,purchaseDate:"2026-03-01",idempotencyKey:"unknown-price"});
+    assert.equal((await suggestions())[0].estimatedTotal,13.33);
+    assert.equal(getHomeOverview(db,homeId,{}).shopping.items[0].estimatedTotal,13.33);
+    const other=randomUUID();
+    db.prepare("INSERT INTO homes(id,name) VALUES (?,?)").run(other,"Other");
+    const {estimateShoppingTotal}=await import("./shopping.js");
+    assert.equal(estimateShoppingTotal(db,other,itemId,4),null);
+    const saved=saveShopping(db,homeId,{quantity:2},`auto:${itemId}`);
+    assert.equal(saved.estimatedTotal,6.67);
+    db.prepare("DELETE FROM shopping_list WHERE id=?").run(saved.id);
+    const receipt=receiveShopping(db,homeId,`auto:${itemId}`,{actualQuantity:1,completion:"keep",idempotencyKey:"automatic-priced-receipt"});
+    assert.equal(receipt.estimatedTotal,13.33);
+    assert.equal(db.prepare("SELECT estimated_total_minor AS total FROM shopping_list WHERE id=?").get(receipt.shoppingItemId)!.total,1000);
+  } finally {await app.close();db.close();}
+});

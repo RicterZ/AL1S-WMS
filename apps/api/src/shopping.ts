@@ -7,6 +7,14 @@ import { batchDates, InventoryError, moneySchema, recordStock, withStockOperatio
 import { itemBalanceSqlFor } from "./queryHelpers.js";
 import { positiveQuantity, roundQuantity } from "./quantity.js";
 
+export function estimateShoppingTotal(db:DatabaseSync,homeId:string,itemId:string,quantity:number,channelId?:string) {
+  const latest=db.prepare(`SELECT b.purchase_total_minor AS totalMinor,
+    COALESCE((SELECT SUM(t.quantity) FROM cost_transactions t WHERE t.batch_id=b.id AND t.type='receipt' AND t.idempotency_key NOT LIKE 'event:%'),0) AS quantity
+    FROM cost_batches b WHERE b.home_id=? AND b.item_id=? AND b.purchase_total_minor IS NOT NULL${channelId ? " AND b.channel_id=?" : ""}
+    ORDER BY b.purchased_date DESC,b.received_at DESC,b.id DESC LIMIT 1`).get(homeId,itemId,...(channelId?[channelId]:[])) as {totalMinor:number;quantity:number}|undefined;
+  return latest&&latest.quantity>0?Math.round(latest.totalMinor/latest.quantity*quantity)/100:null;
+}
+
 const fields = {consumptionType:consumptionTypeSchema.optional(),openedShelfLifeDays:z.unknown().optional(),itemId:z.string().uuid().nullable().optional(),name:z.string().trim().min(1).max(200).optional(),quantity:positiveQuantity.optional(),unit:z.string().trim().min(1).max(30).optional(),category:z.string().trim().min(1).max(100).optional(),locationId:z.string().uuid().nullable().optional(),channelId:z.string().uuid().nullable().optional(),plannedDate:z.string().date().nullable().optional(),estimatedTotal:moneySchema.nullable().optional()};
 export const shoppingSchema=z.object(fields).strict();
 type Purchase={consumptionType:z.infer<typeof consumptionTypeSchema>;openedShelfLifeDays:number|null;id:string;itemId:string|null;name:string;quantity:number;unit:string|null;category:string|null;locationId:string|null;channelId:string|null;plannedDate:string|null;estimatedTotal:number|null;source?:string;completed:number};
@@ -27,12 +35,8 @@ export function saveShopping(db:DatabaseSync,homeId:string,raw:unknown,id?:strin
   if(!result.name||!result.unit||!result.category||(!itemId&&!result.locationId))throw new InventoryError(400,"SHOPPING_FIELDS_REQUIRED","error.shoppingFieldsRequired");
   if(result.locationId&&!db.prepare("SELECT 1 FROM locations WHERE id=? AND home_id=? AND active=1").get(result.locationId,homeId))throw new InventoryError(400,"LOCATION_NOT_FOUND","error.shoppingLocationInvalid");
   if(result.channelId&&result.channelId!==current?.channelId&&!db.prepare("SELECT 1 FROM shopping_channels WHERE id=? AND home_id=? AND active=1").get(result.channelId,homeId))throw new InventoryError(400,"SHOPPING_CHANNEL_NOT_FOUND","error.shoppingChannelInvalid");
-  if(result.estimatedTotal==null&&itemId&&result.channelId) {
-    const latest=db.prepare(`SELECT b.purchase_total_minor AS totalMinor,
-      COALESCE((SELECT SUM(t.quantity) FROM cost_transactions t WHERE t.batch_id=b.id AND t.type='receipt' AND t.idempotency_key NOT LIKE 'event:%'),0) AS quantity
-      FROM cost_batches b WHERE b.home_id=? AND b.item_id=? AND b.channel_id=? AND b.purchase_total_minor IS NOT NULL
-      ORDER BY b.purchased_date DESC,b.received_at DESC LIMIT 1`).get(homeId,itemId,result.channelId) as {totalMinor:number;quantity:number}|undefined;
-    if(latest&&latest.quantity>0)result.estimatedTotal=Math.round(latest.totalMinor/latest.quantity*result.quantity)/100;
+  if(result.estimatedTotal==null&&itemId&&(result.channelId||automaticId)) {
+    result.estimatedTotal=estimateShoppingTotal(db,homeId,itemId,result.quantity,result.channelId??undefined);
   }
   const resultId=automaticId?randomUUID():result.id;
   const estimatedTotalMinor=result.estimatedTotal==null?null:Math.round(result.estimatedTotal*100);
@@ -60,6 +64,7 @@ export function receiveShopping(db:DatabaseSync,homeId:string,shoppingId:string,
       itemId=randomUUID();
       db.prepare("INSERT INTO items(id,home_id,sku,name,category,base_unit,default_location_id,consumption_type,opened_shelf_life_days) VALUES (?,?,?,?,?,?,?,?,?)").run(itemId,homeId,`ITEM-${itemId.slice(0,8).toUpperCase()}`,row.name,row.category,row.unit,locationId,row.consumptionType,openedShelfLife(row.consumptionType,row.openedShelfLifeDays));
     }
+    if(automatic&&row.itemId)row.estimatedTotal=estimateShoppingTotal(db,homeId,row.itemId,row.quantity);
     const persistedShoppingId=automatic?randomUUID():shoppingId;
     const remaining=input.completion==="keep"?roundQuantity(Math.max(0,row.quantity-input.actualQuantity)):0;
     const completed=remaining===0;

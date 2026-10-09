@@ -7,7 +7,7 @@ import Fastify from "fastify";
 import { z } from "zod";
 import { listItems, listTransactions, listBatches, getHomeOverview } from "./queries.js";
 import { atomic, batchDates, batchBalanceQuery, exhaustOpenedConsumable, InventoryError, listOpenedConsumables, moneySchema, reconcileStock, recordItemEvent, recordStock, refreshItemDates, requireStockTarget, transferStock, validateDates } from "./stock.js";
-import { saveShopping, receiveShopping } from "./shopping.js";
+import { saveShopping, receiveShopping, estimateShoppingTotal } from "./shopping.js";
 import { lookupBarcode, normalizeBarcode } from "./barcodes.js";
 import { financialDashboard, financialSummary, financialTrend, inventoryCostAnalysis, listMissingCosts, listPurchaseRecords, itemPriceHistory, saveFinancialBudget } from "./pricing.js";
 import fastifyStatic from "@fastify/static";
@@ -765,7 +765,7 @@ app.get<{ Params: { homeId: string } }>(
         `SELECT 'auto:' || items.id AS id, items.id AS itemId, items.name, MAX(ROUND(items.reorder_point - ${itemBalanceSqlFor("items")},2), 0) AS quantity, items.base_unit AS unit, items.consumption_type AS consumptionType, items.opened_shelf_life_days AS openedShelfLifeDays, items.category, items.default_location_id AS locationId,NULL AS channelId,NULL AS channelName,NULL AS plannedDate,NULL AS estimatedTotal,'automatic' AS source,0 AS completed,NULL AS createdAt FROM items WHERE items.home_id=? AND items.active=1 AND items.replenishment_paused=0 AND ROUND(items.reorder_point - ${itemBalanceSqlFor("items")},2)>0 AND NOT EXISTS (SELECT 1 FROM shopping_list s WHERE s.home_id=items.home_id AND s.item_id=items.id AND s.completed=0) GROUP BY items.id ORDER BY items.name`,
       )
       .all(request.params.homeId);
-    return [...manual, ...automatic];
+    return [...manual, ...automatic.map(row=>({...row,estimatedTotal:estimateShoppingTotal(db,request.params.homeId,String(row.itemId),Number(row.quantity))}))];
   },
 );
 app.get<{Params:{homeId:string}}>("/api/v1/homes/:homeId/shopping-channels",async request=>
