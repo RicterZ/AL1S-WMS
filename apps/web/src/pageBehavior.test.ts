@@ -190,3 +190,23 @@ test("non-long-term consumption fields are disabled and display a literal dash m
     assert.doesNotMatch(html,/value="30"/);
   }
 });
+
+test("saved automatic purchase plans can be deleted while live suggestions cannot", async () => {
+  const { ShoppingPage } = await import("./ShoppingPage.js");
+  const noop = () => {};
+  const props: Parameters<typeof ShoppingPage>[0] = {
+    selectedShoppingDate:"",visibleShoppingItems:[],items:[],locations:[],shoppingChannelName:()=>"",financialSummary:null,
+    setEditShoppingItem:noop,setEditShoppingItemId:noop,openShoppingReceipt:noop,openItemDetail:noop,load:async()=>{},setMobileAction:noop,
+    shoppingChannels:[],addShoppingChannel:async()=>{},newChannelName:"",setNewChannelName:noop,deleteShoppingChannel:async()=>{},
+    moveShoppingMonth:noop,setShoppingMonth:noop,setSelectedShoppingDate:noop,calendarYear:2026,calendarMonthNumber:10,
+    calendarIncludeCompleted:false,updateCalendarIncludeCompleted:noop,calendarFinancial:null,calendarCells:[],calendarItems:[],
+  };
+  for (const [id, source, deletable] of [
+    ["auto:item", "automatic", false],
+    ["saved-automatic", "automatic", true],
+    ["saved-manual", "manual", true],
+  ] as const) {
+    const html=renderToStaticMarkup(createElement(ShoppingPage,{...props,visibleShoppingItems:[{id,source,name:"采购物品",quantity:2,completed:0}]}));
+    assert.equal(/class="danger-action"/.test(html),deletable);
+  }
+});

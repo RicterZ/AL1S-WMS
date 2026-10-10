@@ -205,7 +205,7 @@ export function ShoppingPage({
                             {t("入库")}
                           </button>
                         )}
-                        {item.source === "manual" && (
+                        {!item.id.startsWith("auto:") && (
                           <button
                             className="danger-action"
                             onClick={() =>
