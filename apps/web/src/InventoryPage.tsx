@@ -215,7 +215,7 @@ export function InventoryPage({
           </label>
         </div>
         <div className="count-filters">
-          <button type="button" className={stockStatusFilter==="paused"?"active":""} onClick={()=>{setStockStatusFilter(stockStatusFilter==="paused"?"":"paused");setExpiryFilter("");}}>{t("已停购")}</button>
+          <button type="button" className={`secondary paused-filter${stockStatusFilter==="paused"?" active":""}`} aria-pressed={stockStatusFilter==="paused"} onClick={()=>{setStockStatusFilter(stockStatusFilter==="paused"?"":"paused");setExpiryFilter("");}}>{t("已停购")}</button>
           <SlidersHorizontal size={15} strokeWidth={1.8} />
           <label>
             {t("分类")}
