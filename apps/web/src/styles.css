@@ -732,6 +732,3 @@ input,select,textarea{outline:none!important;box-shadow:none!important}
 
 .stock-status.paused{--status-ink:#697b8a;--status-fill:#eef1f3}
 .inventory-paused{background:#f8fafb}
-
-.count-filters .paused-filter{height:32px;padding:0 12px;font-size:12px;white-space:nowrap;justify-self:start}
-.count-filters .paused-filter.active{border-color:var(--aris-blue);background:#e6f3fc;color:var(--aris-blue-dark);font-weight:650}
