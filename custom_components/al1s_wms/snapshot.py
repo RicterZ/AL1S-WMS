@@ -41,7 +41,7 @@ def build_details(overview: dict, items: list, batches: list, opened: list, shop
             row.pop("location")
             row.update(reorder_point=item["reorderPoint"], suggested_quantity=0)
             critical.append(row)
-        if item["quantity"] == 0:
+        if item["quantity"] == 0 and not item.get("replenishmentPaused"):
             row = detail(item)
             row.pop("location_id")
             row.pop("location")

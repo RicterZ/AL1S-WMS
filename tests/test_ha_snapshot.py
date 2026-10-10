@@ -41,6 +41,24 @@ class SnapshotTest(unittest.TestCase):
 
 
 class AttentionTest(unittest.TestCase):
+    def test_paused_replenishment_is_not_a_stock_alert(self):
+        items = [
+            {"id": "paused-empty", "name": "Paused empty", "baseUnit": "box", "quantity": 0,
+             "reorderPoint": 2, "replenishmentPaused": True},
+            {"id": "paused-low", "name": "Paused low", "baseUnit": "box", "quantity": 1,
+             "reorderPoint": 2, "replenishmentPaused": True},
+            {"id": "active-empty", "name": "Active empty", "baseUnit": "box", "quantity": 0,
+             "reorderPoint": 2, "replenishmentPaused": False},
+        ]
+        overview = {"generatedAt": "2026-09-29T08:00:00Z", "expiryWindow": {"days": 30}}
+        batches = [{"itemId": "paused-low", "itemName": "Paused low", "baseUnit": "box", "quantity": 1,
+                    "batchId": "b1", "expiryDate": "2026-09-30"}]
+        details = snapshot.build_details(overview, items, batches, [], [], "https://inventory.test")
+        self.assertEqual(details["low_stock"][0]["item_id"], "active-empty")
+        self.assertEqual([row["item_id"] for row in details["empty"]], ["active-empty"])
+        self.assertEqual([(row["item_id"], row["status"]) for row in snapshot.attention_rows(details)],
+                         [("active-empty", "out_of_stock"), ("paused-low", "expiring")])
+
     def test_all_stock_states_and_expiry_rows_are_available_without_item_selection(self):
         items = [
             {"id": "zero", "name": "Zero", "baseUnit": "box", "quantity": 0, "reorderPoint": 0},
