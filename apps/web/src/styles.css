@@ -732,3 +732,8 @@ input,select,textarea{outline:none!important;box-shadow:none!important}
 
 .stock-status.paused{--status-ink:#697b8a;--status-fill:#eef1f3}
 .inventory-paused{background:#f8fafb}
+
+.item-replenishment-toggle{padding:2px 7px;border:1px solid var(--aris-line-strong);border-radius:4px;background:var(--aris-surface);color:var(--aris-blue-dark)}
+.item-replenishment-toggle:hover:not(:disabled){border-color:var(--aris-blue);background:#e6f3fc}
+.item-replenishment-toggle:focus-visible{outline:2px solid var(--aris-blue);outline-offset:2px}
+.item-replenishment-toggle:disabled{opacity:.5;cursor:not-allowed}
