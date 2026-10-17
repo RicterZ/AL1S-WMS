@@ -3,6 +3,7 @@ import i18n from "./i18n/index.js";
 const t = i18n.t.bind(i18n);
 import { Search, X } from "lucide-react";
 import { categoryLabel } from "./systemLabels.js";
+import { matchesSearch } from "./search.js";
 
 type ItemOption = { id: string; name: string; category: string; sku: string };
 
@@ -27,9 +28,7 @@ export function ItemCombobox({
     if (!term || selected?.name === query) return [];
     return items
       .filter((item) =>
-        `${item.name} ${item.category} ${item.sku}`
-          .toLocaleLowerCase("zh-CN")
-          .includes(term),
+        matchesSearch(`${item.name} ${item.category} ${item.sku}`, term),
       )
       .slice(0, 8);
   }, [items, query, selected?.name]);

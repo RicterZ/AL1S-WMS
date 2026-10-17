@@ -19,6 +19,7 @@ import { TransactionPagination } from "./TransactionPagination.js";
 import { getCategories,getFinancialSummary,getHomeId,getItems,getLocations,getOpenedConsumables,getShoppingCalendar,getShoppingChannels,getShoppingList,getStock,getTransactions } from "./apiClient.js";
 import { formatMoney } from "./formatMoney.js";
 import { roundQuantity } from "./quantity.js";
+import { matchesSearch } from "./search.js";
 import { apiFetch,apiJson } from "./i18n/apiFetch.js";
 import i18n,{
 displayUnit,
@@ -484,9 +485,7 @@ export function App() {
       locationScopedItems
         .filter((item) => {
           if (
-            !`${item.name} ${item.sku}`
-              .toLowerCase()
-              .includes(query.toLowerCase())
+            !matchesSearch(`${item.name} ${item.sku}`, query)
           )
             return false;
           if (
@@ -1944,7 +1943,7 @@ export function App() {
         />
       )}
       {exhaustTarget&&<div className="modal-backdrop" onMouseDown={event=>event.target===event.currentTarget&&setExhaustTarget(null)}><form className="modal" onSubmit={submitExhaust}><div className="modal-head"><div><h2>{t("用尽已开封物品")}</h2><p className="muted">{exhaustTarget.itemName}</p></div><button type="button" className="close" onClick={()=>setExhaustTarget(null)} aria-label={t("关闭")}><X size={18} strokeWidth={1.8}/></button></div><label>{t("用尽数量")}<input name="quantity" type="number" min="0" max={exhaustTarget.quantity} step="any" defaultValue={exhaustTarget.quantity>=1?1:exhaustTarget.quantity} autoFocus required/><small className="form-hint">{t("当前已开封 {{quantity}} {{unit}}",{quantity:exhaustTarget.quantity,unit:displayUnit(exhaustTarget.baseUnit)})}</small></label><button className="primary full" disabled={busy}>{busy?t("处理中…"):t("确认用尽")}</button></form></div>}
-      {showHomeIssuePicker&&<div className="modal-backdrop" onMouseDown={event=>event.target===event.currentTarget&&(setShowHomeIssuePicker(false),setHomeIssueQuery(""))}><section className="modal home-issue-picker" role="dialog" aria-modal="true" aria-labelledby="home-issue-title"><div className="modal-head"><div><h2 id="home-issue-title">{t("领用物资")}</h2><p className="muted">{t("选择要领用的物资")}</p></div><button type="button" className="close" onClick={()=>{setShowHomeIssuePicker(false);setHomeIssueQuery("");}} aria-label={t("关闭")}><X size={18} strokeWidth={1.8}/></button></div><label className="home-issue-search"><Search size={16}/><input value={homeIssueQuery} autoFocus placeholder={t("搜索名称、分类或 SKU")} onChange={event=>setHomeIssueQuery(event.target.value)}/></label><div className="home-issue-results">{items.filter(item=>`${item.name} ${item.category} ${item.sku}`.toLocaleLowerCase(localeForDates()).includes(homeIssueQuery.trim().toLocaleLowerCase(localeForDates()))).map(item=><button type="button" key={item.id} onClick={()=>chooseHomeIssueItem(item)}><span className="item-icon"><MaterialIcon value={itemIconFor(item)}/></span><span><strong>{item.name}</strong><small>{item.category?categoryLabel(item.category):t("未分类")} · {balanceFor(item.id)} {displayUnit(item.baseUnit)}</small></span><ChevronRight size={16}/></button>)}{items.filter(item=>`${item.name} ${item.category} ${item.sku}`.toLocaleLowerCase(localeForDates()).includes(homeIssueQuery.trim().toLocaleLowerCase(localeForDates()))).length===0&&<p className="empty compact">{t("没有匹配物资")}</p>}</div></section></div>}
+      {showHomeIssuePicker&&<div className="modal-backdrop" onMouseDown={event=>event.target===event.currentTarget&&(setShowHomeIssuePicker(false),setHomeIssueQuery(""))}><section className="modal home-issue-picker" role="dialog" aria-modal="true" aria-labelledby="home-issue-title"><div className="modal-head"><div><h2 id="home-issue-title">{t("领用物资")}</h2><p className="muted">{t("选择要领用的物资")}</p></div><button type="button" className="close" onClick={()=>{setShowHomeIssuePicker(false);setHomeIssueQuery("");}} aria-label={t("关闭")}><X size={18} strokeWidth={1.8}/></button></div><label className="home-issue-search"><Search size={16}/><input value={homeIssueQuery} autoFocus placeholder={t("搜索名称、分类或 SKU")} onChange={event=>setHomeIssueQuery(event.target.value)}/></label><div className="home-issue-results">{items.filter(item=>matchesSearch(`${item.name} ${item.category} ${item.sku}`, homeIssueQuery)).map(item=><button type="button" key={item.id} onClick={()=>chooseHomeIssueItem(item)}><span className="item-icon"><MaterialIcon value={itemIconFor(item)}/></span><span><strong>{item.name}</strong><small>{item.category?categoryLabel(item.category):t("未分类")} · {balanceFor(item.id)} {displayUnit(item.baseUnit)}</small></span><ChevronRight size={16}/></button>)}{items.filter(item=>matchesSearch(`${item.name} ${item.category} ${item.sku}`, homeIssueQuery)).length===0&&<p className="empty compact">{t("没有匹配物资")}</p>}</div></section></div>}
       {workflowDialog === "transfer" && workflowItem && <TransferDialog item={workflowItem} locations={locations} onClose={()=>{setWorkflowDialog(null);setWorkflowItem(null);}} onSaved={()=>{setWorkflowDialog(null);setWorkflowItem(null);void load();}}/>}
       {stocktakeScope && <LocationStocktake key={`${stocktakeScope.kind}:${stocktakeScope.node.id}`} scope={stocktakeScope} onClose={()=>{window.history.replaceState(null,"",pagePaths[activePage]);setStocktakeScope(null);}} onSaved={()=>{window.history.replaceState(null,"",pagePaths[activePage]);setStocktakeScope(null);void load();}}/>}
       {workflowDialog === "history" && <OperationHistoryDialog onClose={()=>setWorkflowDialog(null)} onSaved={()=>void load()}/>}
