@@ -8,6 +8,7 @@ AL1S WMS is a lightweight, self-hosted warehouse manager for the home.
 
 <a href="https://github.com/RicterZ/AL1S-WMS/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/RicterZ/AL1S-WMS?display_name=tag" /></a>
 <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/RicterZ/AL1S-WMS" /></a>
+[![M8ven Score](https://m8ven.ai/badge/mcp/ricterz-al1s-wms-11mcqg?v=3dc0245adb600db176193f70c659d0e1)](https://m8ven.ai/mcp/ricterz-al1s-wms-11mcqg?s=readme)
 
 <a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=RicterZ&repository=AL1S-WMS&category=integration"><img alt="Install with HACS" src="https://my.home-assistant.io/badges/hacs_repository.svg" /></a>
 
