@@ -793,5 +793,10 @@ export const enUS = {
   "记录熟悉的包装，查看详情时更容易辨认。": "Recognize familiar packaging at a glance.",
   "所有位置共用一张商品照片；批次标签在批次中查看。": "All locations share the item photo. Find date labels in each batch.",
   "更换照片": "Replace photo",
-  "照片功能预览 · 仅当前页面会话保留": "Photo preview · kept only for this page session",
+  "无法加载照片": "Unable to load photos",
+  "照片保存失败": "Unable to save photos",
+  "照片删除失败": "Unable to delete photo",
+  "请选择 JPEG、PNG 或 WebP 图片。": "Choose JPEG, PNG or WebP images.",
+  "正在保存照片…": "Saving photos…",
+  "照片修改会立即保存，无需保存批次。": "Photo changes are saved immediately, separately from batch details.",
 } as const satisfies Record<keyof typeof zhCN, string>;

@@ -345,5 +345,15 @@ export function openDatabase(
     minimum_quantity REAL NOT NULL CHECK(minimum_quantity>0),
     PRIMARY KEY(home_id,item_id,location_id)
   );`);
+  db.exec(`CREATE TABLE IF NOT EXISTS inventory_photos (
+    id TEXT PRIMARY KEY,
+    home_id TEXT NOT NULL REFERENCES homes(id),
+    item_id TEXT NOT NULL REFERENCES items(id),
+    batch_id TEXT REFERENCES stock_batches(id),
+    caption TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS idx_inventory_photos_target ON inventory_photos(home_id,item_id,batch_id);
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_inventory_photos_item ON inventory_photos(home_id,item_id) WHERE batch_id IS NULL;`);
   return db;
 }

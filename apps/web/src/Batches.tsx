@@ -161,7 +161,7 @@ export function Batches({
               <aside className="batch-details-photos"><BatchPhotoPanel scopeId={homeId+":"+edit.batchId}/></aside>
             </div>
             <div className="batch-dialog-footer">
-              <p>{t("批次照片随批次保留，位置调拨不影响照片。")}</p>
+              <p>{t("照片修改会立即保存，无需保存批次。")}</p>
               <button className="secondary" type="button" disabled={busy} onClick={() => setEdit(null)}>{t("返回批次")}</button>
               <button className="primary" disabled={busy}>{busy?t("处理中…"):t("保存批次")}</button>
             </div>

@@ -9,3 +9,5 @@ dist/
 *.db-shm
 *.db-wal
 __pycache__/
+
+uploads/

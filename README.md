@@ -143,7 +143,26 @@ docker run -d \
   al1s-wms:local
 ```
 
-Back up `/data/al1s-wms.db` regularly. For an internet-facing deployment, place the application behind a reverse proxy with HTTPS and restrict access to its management surface.
+Back up the entire `/data` directory, including the SQLite database and `uploads/` photo files, together while the service is stopped. Restoring only the database does not restore photos. For an internet-facing deployment, place the application behind a reverse proxy with HTTPS and restrict access to its management surface.
+
+### Photo storage
+
+Item details support one reference photo per item. Batch dialogs support up to six photos per batch, shared across all locations of that batch. Selecting, replacing, and removing photos takes effect immediately, separately from saving batch metadata. List icons remain unchanged.
+
+Uploads accept JPEG, PNG, and WebP up to 10 MiB per image. The server decodes and orients images, strips embedded metadata, and generates a WebP image (at most 2000 px per side) and a thumbnail (at most 400 px per side). Original uploads are not retained. Images are read through authenticated household API routes.
+
+The storage layout is:
+
+```text
+/data/
+  al1s-wms.db                 # includes photo ownership and captions
+  uploads/
+    <household UUID>/
+      <photo UUID>.webp
+      <photo UUID>.thumb.webp
+```
+
+Directories are created on the first upload. Docker Compose already persists both database and images in the `/data` volume. For local development, storage defaults to an `uploads/` directory next to the opened database. Changing `UPLOADS_DIR` requires moving existing files to that directory. Replacing or deleting a photo removes its stored files; transferring inventory retains batch photo associations.
 
 ### Optional Environment Variables
 
@@ -152,6 +171,7 @@ Back up `/data/al1s-wms.db` regularly. For an internet-facing deployment, place 
 | `PORT` | `8080` | HTTP service port. |
 | `BIND_ADDRESS` | `0.0.0.0` | HTTP listen address. |
 | `DATABASE_URL` | `/data/al1s-wms.db` in the image | SQLite database path. |
+| `UPLOADS_DIR` | `/data/uploads` in the image; otherwise `uploads/` beside the database | Private photo storage directory. Persist it alongside the database; never expose it as a public static directory. |
 | `APIZERO_API_KEY` | unset | Enables authenticated ApiZero barcode lookup; without it, AL1S WMS uses an anonymous quota and public sources. |
 
 ## MCP and AI Agents
