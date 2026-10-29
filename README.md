@@ -58,6 +58,8 @@ Stocktaking, purchasing, and finance share one data trail. Receiving a purchase 
 ### Alerts and Stocktakes
 
 - Classify stock as insufficient, critical, or depleted from its reorder threshold.
+- Purchase thresholds use each item’s total stock across all locations in the household, including when filtering by location. Inventory rows show local stock and the household total.
+- Configure optional item/location minimums under “Location transfer reminders” on the inventory page. Empty locations can have rules too. Local shortages create transfer reminders without adding purchase quantities; set a minimum to zero to remove it.
 - Highlight expired and soon-to-expire batches so they can be used or handled first.
 - Filter inventory by item, location, status, and expiry; sort by receipt time or urgency.
 - Enter a physical count directly. Differences are recorded as a receipt or issue with a stocktake reason.

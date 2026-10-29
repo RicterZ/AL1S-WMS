@@ -150,7 +150,7 @@ export function ItemForm({
           </label>
         </div>
         <label>
-          {t("最低库存")}
+          {t("家庭最低库存")}
           <input
             name="reorderPoint"
             type="number"
@@ -159,6 +159,7 @@ export function ItemForm({
             defaultValue="0"
           />
         </label>
+        <p className="form-hint">{t("汇总所有存放位置，低于此数量时建议采购。")}</p>
         <BatchFields title={t("初始库存批次（可选）")} />
         <fieldset className="purchase-cost">
           <legend>{t("初始库存成本（可选）")}</legend>

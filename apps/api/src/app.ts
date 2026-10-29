@@ -1,5 +1,6 @@
 import {listWorkflowOperations,undoWorkflowOperation,previewStocktake,previewCategoryStocktake,confirmStocktake} from "./workflows.js";
 import {normalizeConsumptionInput} from "./consumption.js";
+import { listLocationMinimums, saveLocationMinimum } from "./location-minimums.js";
 import { itemBalanceSqlFor } from "./queryHelpers.js";
 import { nonnegativeQuantity, roundQuantity } from "./quantity.js";
 import {createAuth} from "./auth.js";
@@ -403,6 +404,11 @@ app.patch<{Params:{homeId:string;itemId:string};Body:unknown}>("/api/v1/homes/:h
     return {...updated,replenishmentPaused:Boolean(updated.replenishmentPaused)};
   });
 });
+
+app.get<{Params:{homeId:string}}>("/api/v1/homes/:homeId/location-minimums",async request =>
+  listLocationMinimums(db,request.params.homeId));
+app.put<{Params:{homeId:string;itemId:string;locationId:string};Body:unknown}>("/api/v1/homes/:homeId/items/:itemId/location-minimums/:locationId",async request =>
+  saveLocationMinimum(db,request.params.homeId,request.params.itemId,request.params.locationId,request.body));
 
 app.get<{Params:{homeId:string}}>("/api/v1/homes/:homeId/stock", async request => {
   const filters=z.object({itemId:z.string().uuid().optional(),locationId:z.string().uuid().optional(),batchId:z.string().uuid().optional()}).parse(request.query);
