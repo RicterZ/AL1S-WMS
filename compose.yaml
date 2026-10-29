@@ -11,6 +11,7 @@ services:
       - "${AL1S_PORT:-8080}:8080"
     environment:
       TZ: ${TZ:-Asia/Shanghai}
+      UPLOADS_DIR: /data/uploads
     volumes:
       - al1s-wms-data:/data
     healthcheck:

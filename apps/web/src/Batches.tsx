@@ -1,6 +1,8 @@
-import { X } from "lucide-react";
+import { ArrowLeft, CalendarDays, MapPin, Package, X } from "lucide-react";
 import { useEffect,useState,type FormEvent } from "react";
 import { BatchFields } from "./BatchFields.js";
+import { BatchPhotoPanel } from "./InventoryPhotos.js";
+import "./BatchDialog.css";
 import { apiFetch,apiJson } from "./i18n/apiFetch.js";
 import i18n,{ displayUnit,localeForDates } from "./i18n/index.js";
 import { PageSizeSelect } from "./PageSizeSelect.js";
@@ -115,21 +117,18 @@ export function Batches({
   return (
     <div className="modal-backdrop">
       <section
-        className="modal batches-modal"
+        className={`modal batches-modal batch-design-dialog ${edit ? "batch-design-edit" : ""}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="batches-title"
       >
         <div className="modal-head">
           <div>
-            <h2 id="batches-title">
-              {item.name} {t("· 库存批次")}
-            </h2>
-            <p className="muted">
-              {t("同一批次可分布在多个地点；日期独立管理。")}
-            </p>
+            <p className="batch-dialog-eyebrow"><Package size={13}/>{t("库存批次")}</p>
+            <h2 id="batches-title">{item.name}</h2>
+            <p className="muted">{t("同一批次可分布在多个地点；日期独立管理。")}</p>
           </div>
-          <button className="close" aria-label={t("关闭")} onClick={onClose}>
+          <button className="close" aria-label={t("关闭")} disabled={busy} onClick={onClose}>
             <X size={18} />
           </button>
         </div>
@@ -139,31 +138,32 @@ export function Batches({
           </p>
         )}
         {edit ? (
-          <form key={edit.batchId} onSubmit={save}>
-            <label>
-              {t("批次备注")}
-              <input
-                name="label"
-                maxLength={100}
-                defaultValue={edit.label || ""}
-              />
-            </label>
-            <BatchFields
-              manufacturedDate={edit.manufacturedDate || ""}
-              expiryDate={edit.expiryDate || ""}
-            />
-            <fieldset className="purchase-cost"><legend>{t("采购成本（可选）")}</legend><div className="form-row"><label>{t("实付总价")}<input name="totalPrice" type="number" min="0" step="0.01" defaultValue={edit.totalPrice??""}/></label><label>{t("采购日期")}<input name="purchaseDate" type="date" defaultValue={edit.purchasedDate??""}/></label><label>{t("购买渠道")}<select name="channelId" defaultValue={edit.channelId??""}><option value="">{t("未指定")}</option>{edit.channelId&&!channels.some(channel=>channel.id===edit.channelId)&&<option value={edit.channelId}>{edit.channelName?channelLabel(edit.channelName):t("未指定")}</option>}{channels.map(channel=><option key={channel.id} value={channel.id}>{channelLabel(channel.name)}</option>)}</select></label></div></fieldset>
-            <div className="delete-dialog-actions">
-              <button
-                className="secondary"
-                type="button"
-                onClick={() => setEdit(null)}
-              >
-                {t("返回批次")}
-              </button>
-              <button className="primary" disabled={busy}>
-                {t("保存批次")}
-              </button>
+          <form key={edit.batchId} onSubmit={save} className="batch-detail-form">
+            <div className="batch-context-bar">
+              <button type="button" className="batch-return" disabled={busy} onClick={() => setEdit(null)}><ArrowLeft size={14}/>{t("返回批次")}</button>
+              <span className="batch-context-divider"/>
+              <span className="batch-context-label">{edit.label || t("批次详情")}</span>
+              <code>#{edit.batchId.slice(0,8).toUpperCase()}</code>
+            </div>
+            <div className="batch-detail-columns">
+              <div className="batch-details-main">
+                <div className="batch-stock-context"><span><MapPin size={15}/>{edit.locationName || t("未指定")}</span><strong>{edit.quantity} <small>{displayUnit(item.baseUnit)}</small></strong><span className="batch-current-stock">{t("当前库存")}</span></div>
+                <section className="batch-form-section"><div className="batch-section-heading"><span>01</span><h3>{t("批次信息")}</h3></div>
+                  <label>{t("批次备注")}<input name="label" maxLength={100} defaultValue={edit.label || ""} placeholder={t("例如：本月采购、备用装")}/></label>
+                  <BatchFields manufacturedDate={edit.manufacturedDate || ""} expiryDate={edit.expiryDate || ""}/>
+                  <p className="batch-received-note"><CalendarDays size={13}/>{t("入库时间")} {new Date(edit.receivedAt).toLocaleDateString(localeForDates(),{year:"numeric",month:"long",day:"numeric"})}</p>
+                </section>
+                <section className="batch-form-section"><div className="batch-section-heading"><span>02</span><h3>{t("采购信息")}</h3><small>{t("可选")}</small></div>
+                  <div className="form-row"><label>{t("实付总价")}<input name="totalPrice" type="number" min="0" step="0.01" defaultValue={edit.totalPrice??""}/></label><label>{t("采购日期")}<input name="purchaseDate" type="date" defaultValue={edit.purchasedDate??""}/></label></div>
+                  <label>{t("购买渠道")}<select name="channelId" defaultValue={edit.channelId??""}><option value="">{t("未指定")}</option>{edit.channelId&&!channels.some(channel=>channel.id===edit.channelId)&&<option value={edit.channelId}>{edit.channelName?channelLabel(edit.channelName):t("未指定")}</option>}{channels.map(channel=><option key={channel.id} value={channel.id}>{channelLabel(channel.name)}</option>)}</select></label>
+                </section>
+              </div>
+              <aside className="batch-details-photos"><BatchPhotoPanel scopeId={homeId+":"+edit.batchId}/></aside>
+            </div>
+            <div className="batch-dialog-footer">
+              <p>{t("照片修改会立即保存，无需保存批次。")}</p>
+              <button className="secondary" type="button" disabled={busy} onClick={() => setEdit(null)}>{t("返回批次")}</button>
+              <button className="primary" disabled={busy}>{busy?t("处理中…"):t("保存批次")}</button>
             </div>
           </form>
         ) : (
@@ -231,7 +231,7 @@ export function Batches({
                           className="text-button"
                           onClick={() => setEdit(row)}
                         >
-                          {t("编辑")}
+                          {t("查看 / 编辑")}
                         </button>
                       </td>
                     </tr>
@@ -241,7 +241,7 @@ export function Batches({
               <div className="batch-mobile-list">
                 {rows.map(row => (
                   <div className="batch-mobile-row" key={`${row.batchId}:${row.locationId}`}>
-                    <div><strong>{row.label || new Date(row.receivedAt).toLocaleString(localeForDates())}</strong><button type="button" className="text-button" onClick={() => setEdit(row)}>{t("编辑")}</button></div>
+                    <div><strong>{row.label || new Date(row.receivedAt).toLocaleString(localeForDates())}</strong><button type="button" className="text-button" onClick={() => setEdit(row)}>{t("查看 / 编辑")}</button></div>
                     <span>{row.locationName || t("未指定")} · {row.quantity} {displayUnit(item.baseUnit)}</span>
                     <span>{t("到期日期")}：{row.expiryDate || t("未设置")}</span>
                   </div>

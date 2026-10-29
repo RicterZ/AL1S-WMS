@@ -1,3 +1,4 @@
+import { registerPhotoRoutes } from "./photos.js";
 import {listWorkflowOperations,undoWorkflowOperation,previewStocktake,previewCategoryStocktake,confirmStocktake} from "./workflows.js";
 import {normalizeConsumptionInput} from "./consumption.js";
 import { listLocationMinimums, saveLocationMinimum } from "./location-minimums.js";
@@ -30,7 +31,7 @@ import { handleMcpRequest } from "./mcp.js";
 import { deleteInventoryEntity, DeleteError } from "./inventory-delete.js";
 import { parseAcceptLanguage, sendCodeError, sendError } from "./i18n/index.js";
 
-export async function buildApp(db = openDatabase()) {
+export async function buildApp(db = openDatabase(), options: {uploadsDir?: string} = {}) {
 const app = Fastify({ logger: process.env.NODE_ENV !== "test" });
 const localeOf = (request: { headers: Record<string, unknown> }) =>
   parseAcceptLanguage(request.headers["accept-language"]);
@@ -38,6 +39,9 @@ app.setErrorHandler((error, request, reply) => {
   const locale = localeOf(request);
   if (error instanceof z.ZodError) return sendError(reply,locale,400,{ code: "VALIDATION_ERROR", key: "error.validation", details: error.flatten() });
   if (error instanceof InventoryError) return reply.code(error.status).send({ code: error.code, message: error.localized(locale) });
+  const photoUpload = request.method === "POST" && /^\/api\/v1\/homes\/[^/]+\/(items|batches)\/[^/]+\/photos$/.test(request.url.split("?")[0]);
+  if (photoUpload && (error as {statusCode?:number}).statusCode === 413) return sendError(reply,locale,413,{code:"PHOTO_TOO_LARGE",key:"error.photoTooLarge"});
+  if (photoUpload && (error as {statusCode?:number}).statusCode === 415) return sendError(reply,locale,415,{code:"PHOTO_INVALID",key:"error.photoInvalid"});
   request.log.error(error);
   return sendError(reply,locale,500,{ code: "INTERNAL_ERROR", key: "error.internal" });
 });
@@ -105,6 +109,8 @@ app.addHook("preHandler", async (request, reply) => {
   if (token.homeId && request.url.split("?")[0] === "/api/v1/homes" && request.method !== "GET")
     return sendError(reply,localeOf(request),403,{ code: "HOME_SCOPE_FORBIDDEN", key: "error.homeScopeCreate" });
 });
+
+await registerPhotoRoutes(app, db, options);
 
 app.get("/api/v1/auth/tokens", async (request) => {
   const user = sessionUser(request) as { id: string };

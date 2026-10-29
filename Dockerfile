@@ -27,12 +27,13 @@ ENV NODE_ENV=production
 ENV PORT=8080
 ENV BIND_ADDRESS=0.0.0.0
 ENV DATABASE_URL=/data/al1s-wms.db
+ENV UPLOADS_DIR=/data/uploads
 
 WORKDIR /app
 COPY --from=build /app/runtime ./
 COPY --from=build /app/apps/web/dist ./public
 
-RUN mkdir -p /data
+RUN mkdir -p /data/uploads
 
 EXPOSE 8080
 VOLUME ["/data"]
