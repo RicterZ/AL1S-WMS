@@ -76,7 +76,7 @@ export function DashboardPage({
                   <tr>
                     <th>{t("物资")}</th>
                     <th>{t("库存")}</th>
-                    <th className="dashboard-minimum">{t("最低库存")}</th>
+                    <th className="dashboard-minimum">{t("家庭最低库存")}</th>
                     <th>{t("状态")}</th>
                     <th className="dashboard-location">{t("位置")}</th>
                   </tr>

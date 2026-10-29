@@ -338,5 +338,12 @@ export function openDatabase(
   CREATE INDEX IF NOT EXISTS idx_workflow_home ON workflow_operations(home_id,sequence DESC);
   CREATE VIEW IF NOT EXISTS cost_transactions AS SELECT * FROM stock_transactions WHERE reversed_by IS NULL;
   CREATE VIEW IF NOT EXISTS cost_batches AS SELECT * FROM stock_batches WHERE voided=0;`);
+  db.exec(`CREATE TABLE IF NOT EXISTS item_location_minimums (
+    home_id TEXT NOT NULL REFERENCES homes(id),
+    item_id TEXT NOT NULL REFERENCES items(id),
+    location_id TEXT NOT NULL REFERENCES locations(id),
+    minimum_quantity REAL NOT NULL CHECK(minimum_quantity>0),
+    PRIMARY KEY(home_id,item_id,location_id)
+  );`);
   return db;
 }

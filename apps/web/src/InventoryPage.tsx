@@ -3,12 +3,15 @@ import type * as React from "react";
 import { itemIconFor, MaterialIcon } from "./Icons.js";
 import { InventoryMoreActions } from "./InventoryMoreActions.js";
 import { LocationLink } from "./LocationLink.js";
+import { LocationMinimums } from "./LocationMinimums.js";
+import { getHomeId } from "./apiClient.js";
 import { PageSizeSelect } from "./PageSizeSelect.js";
 import { formatDateTime, openedExpiryForDisplay } from "./displayDates.js";
 import { formatMoney } from "./formatMoney.js";
 import i18n, { displayUnit } from "./i18n/index.js";
 import { categoryLabel } from "./systemLabels.js";
 import type {
+  Stock,
   Category,
   FinancialSummary,
   Item,
@@ -26,6 +29,8 @@ type InventoryPageProps = {
   setStockStatusFilter: React.Dispatch<React.SetStateAction<string>>;
   setExpiryFilter: React.Dispatch<React.SetStateAction<string>>;
   items: Item[];
+  locations: Location[];
+  stock: Stock[];
   belowStockCount: number;
   criticalStockCount: number;
   emptyStockCount: number;
@@ -86,6 +91,8 @@ export function InventoryPage({
   setStockStatusFilter,
   setExpiryFilter,
   items,
+  locations,
+  stock,
   belowStockCount,
   criticalStockCount,
   emptyStockCount,
@@ -125,6 +132,7 @@ export function InventoryPage({
 }: InventoryPageProps) {
   return (
     <section className="count-workspace">
+      <LocationMinimums homeId={getHomeId()} items={items} locations={locations} stock={stock} onTransfer={openTransfer}/>
       <div className="count-summary" aria-label={t("库存状态概览")}>
         <button
           className={!stockStatusFilter && !expiryFilter ? "active" : ""}
@@ -310,9 +318,9 @@ export function InventoryPage({
             <thead>
               <tr>
                 <th>{t("物资")}</th>
-                <th>{t("当前库存")}</th>
-                <th>{t("最低库存")}</th>
-                <th>{t("补充建议")}</th>
+                <th>{t("本位置库存")}</th>
+                <th>{t("家庭最低库存")}</th>
+                <th>{t("家庭采购建议")}</th>
                 <th>{t("状态")}</th>
                 <th>{t("存放地点")}</th>
                 <th>{t("日期")}</th>
@@ -359,6 +367,7 @@ export function InventoryPage({
                           {item.treeQuantity ?? balanceFor(item.id)}{" "}
                           {displayUnit(item.baseUnit)}
                         </strong>
+                        <small className="muted">{t("家庭共 {{quantity}} {{unit}}", {quantity:balanceFor(item.id),unit:displayUnit(item.baseUnit)})}</small>
                       </td>
                       <td>
                         {item.reorderPoint} {displayUnit(item.baseUnit)}

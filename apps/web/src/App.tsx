@@ -1625,7 +1625,7 @@ export function App() {
           <DashboardPage navigate={navigate} dashboardItems={dashboardItems} displayStatusFor={displayStatusFor} openItemDetail={openItemDetail} balanceFor={balanceFor} pagedTransactions={pagedTransactions} transactionTotal={transactionTotal} transactionPageSize={transactionPageSize} setTransactionPageSize={setTransactionPageSize} setTransactionPage={setTransactionPage} transactionPage={transactionPage} transactionPageCount={transactionPageCount} shoppingItems={shoppingItems} openedConsumables={openedConsumables} categorySummary={categorySummary} locationSummary={locationSummary} />
         )}
         {!countView && !logView && activePage === "count" && (
-          <InventoryPage toggleReplenishment={toggleReplenishment} openTransfer={item=>{setWorkflowItem(item);setWorkflowDialog("transfer");}} stockStatusFilter={stockStatusFilter} expiryFilter={expiryFilter} setStockStatusFilter={setStockStatusFilter} setExpiryFilter={setExpiryFilter} items={items} belowStockCount={belowStockCount} criticalStockCount={criticalStockCount} emptyStockCount={emptyStockCount} expiringItems={expiringItems} openedConsumables={openedConsumables} openItemDetail={openItemDetail} busy={busy} setExhaustTarget={setExhaustTarget} inventorySort={inventorySort} filtered={filtered} query={query} setQuery={setQuery} categoryFilter={categoryFilter} setCategoryFilter={setCategoryFilter} categoryOptions={categoryOptions} locationFilter={locationFilter} setLocationFilter={setLocationFilter} locationOptions={locationOptions} setInventorySort={setInventorySort} pagedItems={pagedItems} displayStatusFor={displayStatusFor} replenishmentFor={replenishmentFor} balanceFor={balanceFor} financialSummary={financialSummary} openStockAction={openStockAction} setBatchItem={setBatchItem} setDetailItem={setDetailItem} confirmDelete={confirmDelete} setMobileAction={setMobileAction} pageSize={pageSize} setPageSize={setPageSize} setPage={setPage} pageStart={pageStart} pageEnd={pageEnd} page={page} pageCount={pageCount} />
+          <InventoryPage locations={locations} stock={stock} toggleReplenishment={toggleReplenishment} openTransfer={item=>{setWorkflowItem(item);setWorkflowDialog("transfer");}} stockStatusFilter={stockStatusFilter} expiryFilter={expiryFilter} setStockStatusFilter={setStockStatusFilter} setExpiryFilter={setExpiryFilter} items={items} belowStockCount={belowStockCount} criticalStockCount={criticalStockCount} emptyStockCount={emptyStockCount} expiringItems={expiringItems} openedConsumables={openedConsumables} openItemDetail={openItemDetail} busy={busy} setExhaustTarget={setExhaustTarget} inventorySort={inventorySort} filtered={filtered} query={query} setQuery={setQuery} categoryFilter={categoryFilter} setCategoryFilter={setCategoryFilter} categoryOptions={categoryOptions} locationFilter={locationFilter} setLocationFilter={setLocationFilter} locationOptions={locationOptions} setInventorySort={setInventorySort} pagedItems={pagedItems} displayStatusFor={displayStatusFor} replenishmentFor={replenishmentFor} balanceFor={balanceFor} financialSummary={financialSummary} openStockAction={openStockAction} setBatchItem={setBatchItem} setDetailItem={setDetailItem} confirmDelete={confirmDelete} setMobileAction={setMobileAction} pageSize={pageSize} setPageSize={setPageSize} setPage={setPage} pageStart={pageStart} pageEnd={pageEnd} page={page} pageCount={pageCount} />
         )}
         {activePage === "count" && !logView && (
           <section className="panel recent-log">
@@ -1835,7 +1835,7 @@ export function App() {
                 </small>
               </label>
               <label>
-                {t("最低库存")}
+                {t("家庭最低库存")}
                 <input
                   name="reorderPoint"
                   type="number"
@@ -1843,6 +1843,7 @@ export function App() {
                   step="any"
                   defaultValue={detailItem.reorderPoint}
                 />
+                <small className="form-hint">{t("汇总所有存放位置，低于此数量时建议采购。")}</small>
               </label>
             </div>
             <label>

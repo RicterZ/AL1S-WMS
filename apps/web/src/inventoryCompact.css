@@ -81,3 +81,17 @@ dialog.missing-cost-dialog::backdrop { background: #17202b66; }
 .cost-dialog-quantities dt { font-size: 12px; color: var(--aris-muted); }
 .cost-dialog-quantities dd { margin: 4px 0 0; font-weight: 600; }
 .cost-unit-preview { font-size: 12px; color: var(--aris-blue-dark); }
+
+.location-minimums { margin-bottom: 16px; padding: 16px; }
+.location-minimums summary { cursor: pointer; font-weight: 650; }
+.location-minimums .form-row { border: 0; padding: 0; margin: 12px 0; display: flex; flex-wrap: wrap; align-items: end; gap: 12px; }
+.location-minimums label { display: grid; gap: 6px; min-width: 140px; flex: 1; }
+.location-minimums table { width: 100%; }
+.location-minimums td, .location-minimums th { padding: 10px; text-align: left; }
+.location-minimums td p { margin: 4px 0 0; }
+.count-table td > small.muted { display: block; margin-top: 4px; }
+
+.location-minimums fieldset { min-width: 0; }
+.location-minimums input, .location-minimums select { width: 100%; min-width: 0; padding: 8px; border: 1px solid var(--line, #dce3eb); border-radius: 6px; background: var(--panel, #fff); color: inherit; }
+.location-minimums summary:focus-visible { outline: 2px solid var(--aris-blue, #356bc4); outline-offset: 4px; }
+@media (max-width: 600px) { .location-minimums .form-row { flex-direction: column; align-items: stretch; } }
