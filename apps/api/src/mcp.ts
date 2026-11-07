@@ -19,7 +19,7 @@ const homePath = (id: string) => `/api/v1/homes/${id}`;
 
 // MCP is an authenticated adapter over the same application routes as Web.
 export function createMcpServer(api: ApiCall, boundHomeId: string | null = null) {
-  const server = new McpServer({ name: "AL1S-WMS", version: "0.0.4" });
+  const server = new McpServer({ name: "AL1S-WMS", version: "0.0.5" });
   const homeInput: z.ZodRawShape = boundHomeId ? {} : {homeId};
   const scoped = (shape: z.ZodRawShape = {}) => ({...homeInput,...shape});
   const context = (args: Record<string,unknown>) => {

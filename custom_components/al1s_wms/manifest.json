@@ -15,5 +15,5 @@
   "documentation": "https://github.com/RicterZ/AL1S-WMS#home-assistant",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/RicterZ/AL1S-WMS/issues",
-  "version": "0.0.4"
+  "version": "0.0.5"
 }
