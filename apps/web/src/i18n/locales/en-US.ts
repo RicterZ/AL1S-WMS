@@ -779,6 +779,7 @@ export const enUS = {
   "批次最多添加 6 张照片。": "Add up to 6 photos per batch.",
   "添加批次照片": "Add batch photos",
   "添加商品照片": "Add item photo",
+  "暂无商品照片": "No item photo yet",
   "批次照片": "Batch photos",
   "商品照片": "Item photo",
   "保留包装与日期标签，核对这一批的实物信息。": "Keep packaging and date labels for reference.",
