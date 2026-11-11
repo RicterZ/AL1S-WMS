@@ -3,7 +3,7 @@
 .inventory-photos-item{display:flex;gap:28px;padding:22px;margin-bottom:20px;align-items:center;position:relative}
 .inventory-item-photo{width:188px;height:176px;flex-shrink:0;border:1px solid #e5ebf2;border-radius:9px;background:#f4f7fa;overflow:hidden;position:relative;padding:0}
 .inventory-item-photo img{width:100%;height:100%;object-fit:contain;display:block}
-.inventory-item-photo>span,.inventory-photo-thumbnail>span{position:absolute;bottom:9px;right:9px;display:flex;align-items:center;gap:5px;padding:5px 8px;background:#fffef5ed;border:1px solid #e4e8e9;border-radius:5px;font-size:10px;color:#42576d}
+.inventory-item-photo>span,.inventory-photo-thumbnail>span{position:absolute;bottom:9px;right:9px;display:flex;color:#42576d}
 .inventory-item-photo-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#8da2b8;background:linear-gradient(135deg,#f8fafc,#eff4f9);border:1px dashed #cbd9e8}
 .inventory-item-photo-empty>span{position:static;background:none;border:0;font-size:12px}
 .inventory-photo-eyebrow{font-size:10px;color:#7890aa;letter-spacing:1.5px;font-weight:650}
@@ -26,7 +26,7 @@
 .inventory-photo-card{border:1px solid #e0e7ef;background:#fff;border-radius:8px;overflow:hidden;min-width:0}
 .inventory-photo-thumbnail{display:block;width:100%;height:140px;position:relative;background:#f2f5f7;border:0;padding:0;overflow:hidden}
 .inventory-photo-thumbnail img{width:100%;height:100%;object-fit:contain;display:block}
-.inventory-photo-thumbnail>span{font-size:9px;bottom:7px;right:7px;padding:4px 6px}
+.inventory-photo-thumbnail>span{bottom:7px;right:7px}
 .inventory-photo-caption{display:flex;justify-content:space-between;align-items:center;padding:9px 10px;font-size:11px;color:#5f7287;gap:7px}
 .inventory-photo-caption>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .inventory-photo-caption button{border:0;background:none;color:#99a9b9;padding:2px;display:grid;place-items:center}
