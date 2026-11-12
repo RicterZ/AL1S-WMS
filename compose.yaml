@@ -4,7 +4,8 @@ services:
       context: .
       args:
         NPM_REGISTRY: ${NPM_REGISTRY:-https://registry.npmmirror.com}
-    image: al1s-wms:local
+    image: al1s-wms:latest
+    pull_policy: build
     container_name: al1s-wms
     restart: unless-stopped
     ports:

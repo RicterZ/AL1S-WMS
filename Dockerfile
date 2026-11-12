@@ -1,5 +1,7 @@
 # syntax=docker/dockerfile:1
-FROM node:24-alpine AS build
+FROM node:24-alpine AS node-base
+
+FROM node-base AS build
 
 ARG NPM_REGISTRY=https://registry.npmmirror.com
 ENV PNPM_HOME=/pnpm
@@ -21,7 +23,7 @@ COPY packages ./packages
 RUN pnpm build \
   && pnpm --filter @al1s-wms/api deploy --prod --legacy /app/runtime
 
-FROM node:24-alpine AS runtime
+FROM node-base AS runtime
 
 ENV NODE_ENV=production
 ENV PORT=8080
