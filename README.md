@@ -140,7 +140,7 @@ docker run -d \
   --restart unless-stopped \
   -p 8080:8080 \
   -v /srv/al1s-wms/data:/data \
-  al1s-wms:local
+  al1s-wms:latest
 ```
 
 Back up the entire `/data` directory, including the SQLite database and `uploads/` photo files, together while the service is stopped. Restoring only the database does not restore photos. For an internet-facing deployment, place the application behind a reverse proxy with HTTPS and restrict access to its management surface.

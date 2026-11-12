@@ -137,7 +137,7 @@ docker run -d \
   --restart unless-stopped \
   -p 8080:8080 \
   -v /srv/al1s-wms/data:/data \
-  al1s-wms:local
+  al1s-wms:latest
 ```
 
 建议停服后整体备份 `/data`，同时保留 SQLite 数据库和 `uploads/` 照片目录。仅恢复数据库无法恢复照片。对外网部署时，请在反向代理后提供 HTTPS，并限制管理入口访问范围。
